@@ -3,29 +3,73 @@ package school.sptech.model;
 import java.time.LocalDateTime;
 
 public class Alerta {
+    private Integer idServidor;
+    private Integer idComponente;
     private String servidor;
     private String zona;
     private String datacenter;
     private String componente;
     private Double valor;
-    private Double limiteMomento;
+    private Double thresholdMomento;
     private Severidade severidade;
     private Integer idResponsavel;
-    private LocalDateTime horario;
-    
+    private String nomeResponsavel;
+    private LocalDateTime timestamp;
+    private String issueKey;
+
     public Alerta() {
     }
 
-    public Alerta(String servidor, String zona, String datacenter, String componente, Double valor, Double limiteMomento, Severidade severidade, Integer idResponsavel, LocalDateTime horario) {
+    public Alerta(Integer idServidor, Integer idComponente, String servidor, String zona, String datacenter, String componente, Double valor, Double thresholdMomento, Severidade severidade, Integer idResponsavel, String nomeResponsavel, LocalDateTime timestamp, String issueKey) {
+        this.idServidor = idServidor;
+        this.idComponente = idComponente;
         this.servidor = servidor;
         this.zona = zona;
         this.datacenter = datacenter;
         this.componente = componente;
         this.valor = valor;
-        this.limiteMomento = limiteMomento;
+        this.thresholdMomento = thresholdMomento;
         this.severidade = severidade;
         this.idResponsavel = idResponsavel;
-        this.horario = horario;
+        this.nomeResponsavel = nomeResponsavel;
+        this.timestamp = timestamp;
+        this.issueKey = issueKey;
+    }
+
+    public String  getNomeResponsavel() {
+        return nomeResponsavel;
+    }
+
+    public void setNomeResponsavel(String nomeResponsavel) {
+        this.nomeResponsavel = nomeResponsavel;
+    }
+
+    public Integer getIdServidor() {
+        return idServidor;
+    }
+
+    public void setIdServidor(Integer idServidor) {
+        this.idServidor = idServidor;
+    }
+
+    public Integer getIdComponente() {
+        return idComponente;
+    }
+
+    public void setIdComponente(Integer idComponente) {
+        this.idComponente = idComponente;
+    }
+
+    public Alerta(String issueKey) {
+        this.issueKey = issueKey;
+    }
+
+    public String getIssueKey() {
+        return issueKey;
+    }
+
+    public void setIssueKey(String issueKey) {
+        this.issueKey = issueKey;
     }
 
     public String getServidor() {
@@ -68,12 +112,12 @@ public class Alerta {
         this.valor = valor;
     }
 
-    public Double getLimiteMomento() {
-        return limiteMomento;
+    public Double getThresholdMomento() {
+        return thresholdMomento;
     }
 
-    public void setLimiteMomento(Double limiteMomento) {
-        this.limiteMomento = limiteMomento;
+    public void setThresholdMomento(Double thresholdMomento) {
+        this.thresholdMomento = thresholdMomento;
     }
 
     public Severidade getSeveridade() {
@@ -92,11 +136,11 @@ public class Alerta {
         this.idResponsavel = idResponsavel;
     }
 
-    public LocalDateTime getHorario() {
-        return horario;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
-    public void setHorario(LocalDateTime horario) {
-        this.horario = horario;
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 }

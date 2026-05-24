@@ -1,0 +1,166 @@
+    package school.sptech.servicos;
+
+    import com.fasterxml.jackson.databind.ObjectMapper;
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.stereotype.Service;
+    import school.sptech.client.ClientS3;
+    import school.sptech.model.RegistroAlerta;
+    import school.sptech.model.Severidade;
+    import school.sptech.repositorio.RegistroRepositorio;
+    import school.sptech.repositorio.UsuarioRepositorio;
+
+    import java.time.LocalDateTime;
+    import java.time.temporal.ChronoUnit;
+    import java.time.temporal.WeekFields;
+    import java.util.*;
+    import java.util.stream.Collectors;
+
+    @Service
+    public class ServicoGeradorHistorico {
+
+        private final RegistroRepositorio registroRepositorio;
+        private final UsuarioRepositorio usuarioRepositorio;
+        private final ClientS3 clientS3;
+        private final ObjectMapper objectMapper;
+
+        @Value("${jira.project.key:KAN}")
+        private String projetoKey;
+
+        public ServicoGeradorHistorico(RegistroRepositorio registroRepositorio,
+                                       UsuarioRepositorio usuarioRepositorio,
+                                       ClientS3 clientS3,
+                                       ObjectMapper objectMapper) {
+            this.registroRepositorio = registroRepositorio;
+            this.usuarioRepositorio = usuarioRepositorio;
+            this.clientS3 = clientS3;
+            this.objectMapper = objectMapper;
+        }
+
+
+        public void gerar() {
+            System.out.println("Iniciando geração do historico.json");
+            try {
+                LocalDateTime corte30d = LocalDateTime.now().minus(30, ChronoUnit.DAYS);
+                    List<RegistroAlerta> registros = registroRepositorio.findByAbertoEmAfter(corte30d);
+
+                System.out.printf(registros.size() + "registros encontrados nos últimos 30 dias.%n");
+
+                Map<String, Object> historico = new LinkedHashMap<>();
+                historico.put("gerado_em",       LocalDateTime.now().toString());
+                historico.put("periodo_dias",     30);
+                historico.put("total_alertas",    registros.size());
+                historico.put("alertas_por_semana",   agregarPorSemana(registros));
+                historico.put("mttr_por_servidor",    agregarMttrPorServidor(registros));
+                historico.put("mttr_por_analista",    agregarMttrPorAnalista(registros));
+                historico.put("sla_por_analista",     calcularSlaPorAnalista(registros));
+
+                String json = objectMapper.writerWithDefaultPrettyPrinter()
+                        .writeValueAsString(historico);
+
+                clientS3.subirJson("client/historico.json", json);
+                System.out.println("[Historico] historico.json gerado e enviado ao S3.");
+
+            } catch (Exception e) {
+                System.err.println("[Historico] Erro ao gerar histórico: " + e.getMessage());
+            }
+        }
+
+        private List<Map<String, Object>> agregarPorSemana(List<RegistroAlerta> registros) {
+            Map<String, Map<String, Object>> porSemana = new LinkedHashMap<>();
+
+            for (RegistroAlerta r : registros) {
+                if (r.getAbertoEm() == null) continue;
+
+                int semana = r.getAbertoEm().get(WeekFields.ISO.weekOfWeekBasedYear());
+                String chave = String.format("S%02d", semana);
+
+                porSemana.computeIfAbsent(chave, k -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("semana",  k);
+                    m.put("inicio",  r.getAbertoEm()
+                            .with(WeekFields.ISO.dayOfWeek(), 1)
+                            .toLocalDate().toString());
+                    m.put("baixo",   0);
+                    m.put("medio",   0);
+                    m.put("critico", 0);
+                    m.put("total",   0);
+                    return m;
+                });
+
+                Map<String, Object> dados = porSemana.get(chave);
+                String sev = r.getSeveridade() != null
+                        ? r.getSeveridade().name().toLowerCase() : "baixo";
+                dados.put(sev, (int) dados.get(sev) + 1);
+                dados.put("total", (int) dados.get("total") + 1);
+            }
+
+            return new ArrayList<>(porSemana.values());
+        }
+
+        private List<Map<String, Object>> agregarMttrPorServidor(List<RegistroAlerta> registros) {
+
+            Map<Integer, Map<Severidade, List<Integer>>> porServidor = new HashMap<>();
+
+            for (RegistroAlerta r : registros) {
+                if (r.getMttrMinutos() == null || r.getFkServidor() == null) continue;
+
+                porServidor
+                        .computeIfAbsent(r.getFkServidor(), k -> new HashMap<>())
+                        .computeIfAbsent(r.getSeveridade(), k -> new ArrayList<>())
+                        .add(r.getMttrMinutos());
+            }
+
+            List<Map<String, Object>> resultado = new ArrayList<>();
+            for (Map.Entry<Integer, Map<Severidade, List<Integer>>> entry : porServidor.entrySet()) {
+                Map<String, Object> linha = new LinkedHashMap<>();
+                linha.put("idServidor", entry.getKey());
+                for (Severidade sev : Severidade.values()) {
+                    List<Integer> valores = entry.getValue().getOrDefault(sev, List.of());
+                    double media = valores.stream().mapToInt(i -> i).average().orElse(0.0);
+                    linha.put(sev.name().toLowerCase(), Math.round(media * 10.0) / 10.0);
+                }
+                resultado.add(linha);
+            }
+            return resultado;
+        }
+
+        private List<Map<String, Object>> agregarMttrPorAnalista(List<RegistroAlerta> registros) {
+            Map<Integer, List<RegistroAlerta>> porAnalista = registros.stream()
+                    .filter(r -> r.getFkResponsavel() != null && r.getMttrMinutos() != null)
+                    .collect(Collectors.groupingBy(RegistroAlerta::getFkResponsavel));
+
+            List<Map<String, Object>> resultado = new ArrayList<>();
+            for (Map.Entry<Integer, List<RegistroAlerta>> entry : porAnalista.entrySet()) {
+                double mttrMedio = entry.getValue().stream()
+                        .mapToInt(RegistroAlerta::getMttrMinutos)
+                        .average().orElse(0.0);
+
+                Map<String, Object> linha = new LinkedHashMap<>();
+                linha.put("idAnalista", entry.getKey());
+                linha.put("mttrMedio",  Math.round(mttrMedio));
+                resultado.add(linha);
+            }
+            return resultado;
+        }
+
+        private List<Map<String, Object>> calcularSlaPorAnalista(List<RegistroAlerta> registros) {
+            Map<Integer, List<RegistroAlerta>> porAnalista = registros.stream()
+                    .filter(r -> r.getFkResponsavel() != null && r.getSlaOK() != null)
+                    .collect(Collectors.groupingBy(RegistroAlerta::getFkResponsavel));
+
+            List<Map<String, Object>> resultado = new ArrayList<>();
+            for (Map.Entry<Integer, List<RegistroAlerta>> entry : porAnalista.entrySet()) {
+                long total      = entry.getValue().size();
+                long dentroSla  = entry.getValue().stream().filter(RegistroAlerta::getSlaOK).count();
+                double percentual = total > 0 ? (dentroSla * 100.0 / total) : 0.0;
+
+                Map<String, Object> linha = new LinkedHashMap<>();
+                linha.put("idAnalista",    entry.getKey());
+                linha.put("totalChamados", total);
+                linha.put("dentroSla",     dentroSla);
+                linha.put("percentual",    Math.round(percentual * 10.0) / 10.0);
+                resultado.add(linha);
+            }
+            return resultado;
+        }
+    }
