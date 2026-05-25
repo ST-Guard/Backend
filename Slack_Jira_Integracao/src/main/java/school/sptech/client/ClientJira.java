@@ -107,11 +107,19 @@ public class ClientJira {
 
     public LocalDateTime getResolvidoEm(String issueKey) throws Exception {
         JsonNode chamado = buscarChamado(issueKey);
+
+        // ADICIONAR — imprime o JSON completo que o Jira retornou
+        System.out.println("[Jira] Resposta completa do chamado " + issueKey + ":");
+        System.out.println(chamado.toPrettyString());
+
         JsonNode resolutionDate = chamado.path("fields").path("resolutiondate");
+        System.out.println("[Jira] resolutiondate: " + resolutionDate.asText());
+        // ...resto igual
 
         if (resolutionDate.isNull() || resolutionDate.isMissingNode()) {
             return null;
         }
+
 
         String dateStr = resolutionDate.asText();
         DateTimeFormatter formatter = DateTimeFormatter

@@ -1,146 +1,116 @@
 package school.sptech.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDateTime;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Alerta {
+
+    @JsonProperty("id_servidor")
     private Integer idServidor;
+
+    @JsonProperty("id_componente")
     private Integer idComponente;
+
+    @JsonProperty("servidor")
     private String servidor;
+
+    @JsonProperty("zona")
     private String zona;
+
     private String datacenter;
+
+    @JsonProperty("componente")
     private String componente;
+
+    @JsonProperty("valor")
     private Double valor;
+
+    @JsonProperty("threshold_momento")
     private Double thresholdMomento;
-    private Severidade severidade;
+
+    @JsonProperty("severidade")
+    private String severidadeStr;
+
+    @JsonProperty("id_responsavel")
     private Integer idResponsavel;
+
+    @JsonProperty("nome_responsavel")
     private String nomeResponsavel;
-    private LocalDateTime timestamp;
+
+    @JsonProperty("timestamp")
+    private String timestampStr;
+
+    @JsonProperty("issue_key")
     private String issueKey;
 
-    public Alerta() {
-    }
+    @JsonProperty("status")
+    private String status;
 
-    public Alerta(Integer idServidor, Integer idComponente, String servidor, String zona, String datacenter, String componente, Double valor, Double thresholdMomento, Severidade severidade, Integer idResponsavel, String nomeResponsavel, LocalDateTime timestamp, String issueKey) {
-        this.idServidor = idServidor;
-        this.idComponente = idComponente;
-        this.servidor = servidor;
-        this.zona = zona;
-        this.datacenter = datacenter;
-        this.componente = componente;
-        this.valor = valor;
-        this.thresholdMomento = thresholdMomento;
-        this.severidade = severidade;
-        this.idResponsavel = idResponsavel;
-        this.nomeResponsavel = nomeResponsavel;
-        this.timestamp = timestamp;
-        this.issueKey = issueKey;
-    }
+    @JsonProperty("sla_prazo_horas")
+    private Integer slaPrazoHoras;
 
-    public String  getNomeResponsavel() {
-        return nomeResponsavel;
-    }
-
-    public void setNomeResponsavel(String nomeResponsavel) {
-        this.nomeResponsavel = nomeResponsavel;
-    }
-
-    public Integer getIdServidor() {
-        return idServidor;
-    }
-
-    public void setIdServidor(Integer idServidor) {
-        this.idServidor = idServidor;
-    }
-
-    public Integer getIdComponente() {
-        return idComponente;
-    }
-
-    public void setIdComponente(Integer idComponente) {
-        this.idComponente = idComponente;
-    }
-
-    public Alerta(String issueKey) {
-        this.issueKey = issueKey;
-    }
-
-    public String getIssueKey() {
-        return issueKey;
-    }
-
-    public void setIssueKey(String issueKey) {
-        this.issueKey = issueKey;
-    }
-
-    public String getServidor() {
-        return servidor;
-    }
-
-    public void setServidor(String servidor) {
-        this.servidor = servidor;
-    }
-
-    public String getZona() {
-        return zona;
-    }
-
-    public void setZona(String zona) {
-        this.zona = zona;
-    }
-
-    public String getDatacenter() {
-        return datacenter;
-    }
-
-    public void setDatacenter(String datacenter) {
-        this.datacenter = datacenter;
-    }
-
-    public String getComponente() {
-        return componente;
-    }
-
-    public void setComponente(String componente) {
-        this.componente = componente;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public Double getThresholdMomento() {
-        return thresholdMomento;
-    }
-
-    public void setThresholdMomento(Double thresholdMomento) {
-        this.thresholdMomento = thresholdMomento;
-    }
+    public Alerta() {}
 
     public Severidade getSeveridade() {
-        return severidade;
-    }
-
-    public void setSeveridade(Severidade severidade) {
-        this.severidade = severidade;
-    }
-
-    public Integer getIdResponsavel() {
-        return idResponsavel;
-    }
-
-    public void setIdResponsavel(Integer idResponsavel) {
-        this.idResponsavel = idResponsavel;
+        if (severidadeStr == null) return null;
+        return Severidade.string(severidadeStr);
     }
 
     public LocalDateTime getTimestamp() {
-        return timestamp;
+        if (timestampStr == null) return null;
+        try {
+            return LocalDateTime.parse(timestampStr);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+
+    public Integer getIdServidor() { return idServidor; }
+    public void setIdServidor(Integer idServidor) { this.idServidor = idServidor; }
+
+    public Integer getIdComponente() { return idComponente; }
+    public void setIdComponente(Integer idComponente) { this.idComponente = idComponente; }
+
+    public String getServidor() { return servidor; }
+    public void setServidor(String servidor) { this.servidor = servidor; }
+
+    public String getZona() { return zona; }
+    public void setZona(String zona) { this.zona = zona; }
+
+    public String getDatacenter() { return datacenter; }
+    public void setDatacenter(String datacenter) { this.datacenter = datacenter; }
+
+    public String getComponente() { return componente; }
+    public void setComponente(String componente) { this.componente = componente; }
+
+    public Double getValor() { return valor; }
+    public void setValor(Double valor) { this.valor = valor; }
+
+    public Double getThresholdMomento() { return thresholdMomento; }
+    public void setThresholdMomento(Double thresholdMomento) { this.thresholdMomento = thresholdMomento; }
+
+    /// public String getSeveridadeStr() { return severidadeStr; }
+    /// public void setSeveridadeStr(String severidadeStr) { this.severidadeStr = severidadeStr; }
+
+    public Integer getIdResponsavel() { return idResponsavel; }
+    public void setIdResponsavel(Integer idResponsavel) { this.idResponsavel = idResponsavel; }
+
+    public String getNomeResponsavel() { return nomeResponsavel; }
+    public void setNomeResponsavel(String nomeResponsavel) { this.nomeResponsavel = nomeResponsavel; }
+
+    ///  public String getTimestampStr() { return timestampStr; }
+    /// public void setTimestampStr(String timestampStr) { this.timestampStr = timestampStr; }
+
+    public String getIssueKey() { return issueKey; }
+    public void setIssueKey(String issueKey) { this.issueKey = issueKey; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public Integer getSlaPrazoHoras() { return slaPrazoHoras; }
+    public void setSlaPrazoHoras(Integer slaPrazoHoras) { this.slaPrazoHoras = slaPrazoHoras; }
 }

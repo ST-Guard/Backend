@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 public class RegistroAlerta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idRegistro")
     private Integer idRegistro;
 
     @Column(name = "valor")

@@ -17,7 +17,7 @@ public class AlertaAgendador {
         this.servicoGeradorHistorico = servicoGeradorHistorico;
     }
 
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 100000)
     public void verificarAlertas() {
         alertaProcessador.processar();
     }

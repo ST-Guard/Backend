@@ -43,6 +43,7 @@ public class ClientS3 {
         List<Alerta> todosAlertas = new ArrayList<>();
 
         try {
+
             GetObjectRequest request = GetObjectRequest.builder()
                     .bucket(nomeBucket)
                     .key(CHAVE_ALERTA)
