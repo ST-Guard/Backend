@@ -1,6 +1,7 @@
 package school.sptech.model;
 
 import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -47,6 +48,18 @@ public class RegistroAlerta {
 
     @Column(name = "dataHora")
     private LocalDateTime dataHora;
+
+
+    @Column(name = "datacenter")
+    private String datacenter;
+
+    public String getDatacenter() {
+        return datacenter;
+    }
+
+    public void setDatacenter(String datacenter) {
+        this.datacenter = datacenter;
+    }
 
     public RegistroAlerta() {
     }

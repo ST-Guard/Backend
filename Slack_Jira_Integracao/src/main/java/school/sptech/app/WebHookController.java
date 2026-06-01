@@ -23,7 +23,6 @@ public class WebHookController {
         this.objectMapper = objectMapper;
     }
 
-    // WebHookController.java — adicionar esse método temporário
     @GetMapping("/teste-mttr/{issueKey}")
     public ResponseEntity<String> testeMttr(@PathVariable String issueKey) {
         String bodyFake = "{\"webhookEvent\":\"jira:issue_updated\",\"issue\":{\"key\":\""

@@ -62,7 +62,7 @@ public class ServicoCalculoMTTR {
                 return;
             }
             RegistroAlerta registro = optional.get();
-            System.out.println("[MTTR] Registro encontrado: " + optional.isPresent());
+            System.out.println("Registro encontrado: " + optional.isPresent());
 
             LocalDateTime resolvidoEm = clientJira.getResolvidoEm(issueKey);
             if (resolvidoEm == null) {

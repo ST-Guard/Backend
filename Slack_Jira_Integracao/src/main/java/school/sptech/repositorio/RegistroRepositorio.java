@@ -17,7 +17,7 @@ public interface RegistroRepositorio extends JpaRepository<RegistroAlerta, Integ
     @Query("SELECT r FROM RegistroAlerta r WHERE r.issueKey = :issueKey")
     Optional<RegistroAlerta> findByIssueKey(String issueKey);
 
-    @Query("SELECT r FROM RegistroAlerta r WHERE DATE(r.abertoEm) = DATE(:data)")
+    @Query("SELECT r FROM RegistroAlerta r WHERE DATE(r.abertoEm) >= DATE(:data)")
     List<RegistroAlerta> findByAbertoEmAfter(LocalDateTime data);
 
     boolean existsByFkServidorAndFkComponenteAndResolvidoEmIsNull(

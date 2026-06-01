@@ -43,25 +43,40 @@
                 LocalDateTime corte30d = LocalDateTime.now().minus(30, ChronoUnit.DAYS);
                     List<RegistroAlerta> registros = registroRepositorio.findByAbertoEmAfter(corte30d);
 
-                System.out.printf(registros.size() + "registros encontrados nos últimos 30 dias.%n");
+                System.out.printf(registros.size() + " registros encontrados nos últimos 30 dias.");
 
                 Map<String, Object> historico = new LinkedHashMap<>();
-                historico.put("gerado_em",       LocalDateTime.now().toString());
-                historico.put("periodo_dias",     30);
-                historico.put("total_alertas",    registros.size());
-                historico.put("alertas_por_semana",   agregarPorSemana(registros));
-                historico.put("mttr_por_servidor",    agregarMttrPorServidor(registros));
-                historico.put("mttr_por_analista",    agregarMttrPorAnalista(registros));
-                historico.put("sla_por_analista",     calcularSlaPorAnalista(registros));
+
+                Map<String, List<RegistroAlerta>> porDatacenter = registros.stream()
+                        .filter(r -> r.getDatacenter() != null)
+                        .collect(Collectors.groupingBy(RegistroAlerta::getDatacenter));
+
+                Map<String, Object> dadosPorDc = new LinkedHashMap<>();
+                for (Map.Entry<String, List<RegistroAlerta>> entry : porDatacenter.entrySet()) {
+                    String dc = entry.getKey();
+                    List<RegistroAlerta> regsDc = entry.getValue();
+
+                    Map<String, Object> dadosDc = new LinkedHashMap<>();
+                    dadosDc.put("alertas_por_semana",  agregarPorSemana(regsDc));
+                    dadosDc.put("mttr_por_servidor",   agregarMttrPorServidor(regsDc));
+                    dadosDc.put("mttr_por_analista",   agregarMttrPorAnalista(regsDc));
+                    dadosDc.put("sla_por_analista",    calcularSlaPorAnalista(regsDc));
+
+                    dadosPorDc.put(dc, dadosDc);
+                }
+
+                historico.put("gerado_em",    LocalDateTime.now().toString());
+                historico.put("periodo_dias", 30);
+                historico.put("datacenters",  dadosPorDc);
 
                 String json = objectMapper.writerWithDefaultPrettyPrinter()
                         .writeValueAsString(historico);
 
                 clientS3.subirJson("client/historico.json", json);
-                System.out.println("[Historico] historico.json gerado e enviado ao S3.");
+                System.out.println("historico.json gerado e enviado ao S3.");
 
             } catch (Exception e) {
-                System.err.println("[Historico] Erro ao gerar histórico: " + e.getMessage());
+                System.err.println("Erro ao gerar histórico: " + e.getMessage());
             }
         }
 

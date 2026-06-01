@@ -17,12 +17,12 @@ public class AlertaAgendador {
         this.servicoGeradorHistorico = servicoGeradorHistorico;
     }
 
-    @Scheduled(fixedDelay = 100000)
+    @Scheduled(fixedDelay = 600000)
     public void verificarAlertas() {
         alertaProcessador.processar();
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 26 13 * * *")
     public void gerarHistorico() {
         servicoGeradorHistorico.gerar();
     }

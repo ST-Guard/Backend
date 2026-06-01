@@ -64,6 +64,7 @@ public class ServicoAlertas implements AlertaProcessador {
                 registro.setThreshold_momento(alerta.getThresholdMomento());
                 registro.setDataHora(alerta.getTimestamp());
                 registro.setSlaOK(null);
+                registro.setDatacenter(alerta.getDatacenter());
 
                 registroRepositorio.save(registro);
                 System.out.println("Salvo no banco: " + issueKey);
