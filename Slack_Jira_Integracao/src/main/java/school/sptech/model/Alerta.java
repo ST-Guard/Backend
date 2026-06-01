@@ -2,6 +2,7 @@ package school.sptech.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 
 import java.time.LocalDateTime;
 
@@ -20,6 +21,7 @@ public class Alerta {
     @JsonProperty("zona")
     private String zona;
 
+    @JsonProperty("datacenter")
     private String datacenter;
 
     @JsonProperty("componente")
@@ -67,6 +69,8 @@ public class Alerta {
             return null;
         }
     }
+
+
 
 
     public Integer getIdServidor() { return idServidor; }

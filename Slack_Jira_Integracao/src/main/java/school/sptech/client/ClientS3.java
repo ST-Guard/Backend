@@ -100,9 +100,9 @@ public class ClientS3 {
             s3.putObject(request,
                     software.amazon.awssdk.core.sync.RequestBody.fromBytes(bytes));
 
-            System.out.println("[S3] Upload concluído: " + chave);
+            System.out.println("Upload concluído: " + chave);
         } catch (Exception e) {
-            System.err.println("[S3] Erro no upload: " + e.getMessage());
+            System.err.println("Erro no upload: " + e.getMessage());
         }
     }
 

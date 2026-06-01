@@ -49,9 +49,9 @@ public class RegistroAlerta {
     @Column(name = "dataHora")
     private LocalDateTime dataHora;
 
-
     @Column(name = "datacenter")
     private String datacenter;
+
 
     public String getDatacenter() {
         return datacenter;

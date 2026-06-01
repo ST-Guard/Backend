@@ -1,5 +1,6 @@
 package school.sptech.servicos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import school.sptech.app.AlertaProcessador;
 import school.sptech.client.ClientJira;
 import school.sptech.client.ClientS3;

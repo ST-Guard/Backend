@@ -20,6 +20,9 @@ public interface RegistroRepositorio extends JpaRepository<RegistroAlerta, Integ
     @Query("SELECT r FROM RegistroAlerta r WHERE DATE(r.abertoEm) >= DATE(:data)")
     List<RegistroAlerta> findByAbertoEmAfter(LocalDateTime data);
 
+    @Query(value = "SELECT id_servidor, nome FROM servidor", nativeQuery = true)
+    List<Object[]> buscarNomesServidores();
+
     boolean existsByFkServidorAndFkComponenteAndResolvidoEmIsNull(
             Integer fkServidor, Integer fkComponente);
 }
